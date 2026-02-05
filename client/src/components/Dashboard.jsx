@@ -9,13 +9,18 @@ ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, T
 const API_URL = '/api';
 
 const StatCard = ({ title, value, unit, icon: Icon, color }) => (
-    <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex items-center gap-4">
-        <div className={`p-3 rounded-full ${color} text-white`}>
-            <Icon size={24} />
-        </div>
-        <div>
-            <p className="text-gray-500 text-sm">{title}</p>
-            <p className="text-2xl font-bold">{value} <span className="text-sm font-normal text-gray-400">{unit}</span></p>
+    <div className={`bg-white/95 hover:bg-white backdrop-blur-xl p-6 rounded-[2rem] border border-gray-100 hover:border-${color}-200 transition-all duration-300 group shadow-[0_4px_20px_-4px_rgba(0,0,0,0.03)] hover:shadow-[0_12px_30px_-10px_rgba(0,0,0,0.08)] hover:-translate-y-1`}>
+        <div className="flex items-center gap-5">
+            <div className={`p-4 rounded-2xl bg-${color}-50 text-${color}-600 group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300 shadow-sm ring-1 ring-${color}-100`}>
+                <Icon size={26} strokeWidth={2.5} />
+            </div>
+            <div>
+                <p className="text-gray-500 text-xs font-bold uppercase tracking-wider mb-1 opacity-80">{title}</p>
+                <div className="flex items-baseline gap-1">
+                    <p className="text-3xl font-extrabold text-gray-800 tracking-tight">{value}</p>
+                    <span className="text-sm font-semibold text-gray-400">{unit}</span>
+                </div>
+            </div>
         </div>
     </div>
 );
@@ -101,35 +106,35 @@ const Dashboard = ({ selectedRegion, onDataUpdate, onNavigate }) => {
 
     return (
         <div className="space-y-6 h-full flex flex-col">
-            {/* Top Stats - Distributed Evenly */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* Top Stats - Premium Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 <StatCard
                     title="Soil Moisture"
                     value={latest?.moisture || '--'}
                     unit="%"
                     icon={Droplets}
-                    color="bg-blue-500"
+                    color="blue"
                 />
                 <StatCard
                     title="Temperature"
                     value={latest?.temperature || '--'}
                     unit="°C"
                     icon={Thermometer}
-                    color="bg-orange-500"
+                    color="orange"
                 />
                 <StatCard
                     title="Humidity"
                     value={latest?.humidity || '--'}
                     unit="%"
                     icon={Wind}
-                    color="bg-teal-500"
+                    color="teal"
                 />
                 <StatCard
                     title="Soil pH"
                     value={latest?.ph || '--'}
                     unit="pH"
                     icon={FlaskConical}
-                    color="bg-purple-500"
+                    color="purple"
                 />
             </div>
 
@@ -137,61 +142,74 @@ const Dashboard = ({ selectedRegion, onDataUpdate, onNavigate }) => {
             <div className="flex flex-col gap-6 flex-grow">
 
                 {/* Top Row: Detailed Soil Analysis & Radar Chart (Full Width) */}
-                <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 flex flex-col flex-grow">
-                    <div className="flex justify-between items-center mb-6">
-                        <h3 className="text-xl font-bold flex items-center gap-2 text-gray-800">
-                            <FlaskConical className="text-green-600" /> Soil Nutrient Matrix
+                {/* Top Row: Detailed Soil Analysis & Radar Chart (Full Width) */}
+                <div className="bg-white/90 backdrop-blur-xl p-8 rounded-[2.5rem] shadow-[0_8px_30px_-8px_rgba(0,0,0,0.04)] border border-white/50 flex flex-col flex-grow relative overflow-hidden ring-1 ring-black/5">
+                    <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-emerald-50/80 to-teal-50/80 rounded-full blur-3xl -mr-32 -mt-32 pointer-events-none opacity-70"></div>
+
+                    <div className="flex justify-between items-center mb-8 relative z-10">
+                        <h3 className="text-2xl font-bold flex items-center gap-3 text-gray-900 tracking-tight">
+                            <div className="p-2.5 bg-emerald-100/50 text-emerald-700 rounded-xl backdrop-blur-sm">
+                                <FlaskConical size={22} strokeWidth={2.5} />
+                            </div>
+                            Soil Nutrient Matrix
                         </h3>
-                        <span className="text-xs px-3 py-1 bg-green-100 text-green-700 rounded-full font-bold animate-pulse">
-                            {latest ? 'Region Data' : 'Connecting...'}
+                        <span className="text-xs px-3 py-1 bg-green-50 text-green-700 rounded-full font-bold animate-pulse border border-green-100 flex items-center gap-1">
+                            <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
+                            {latest ? 'Live Data Feed' : 'Connecting...'}
                         </span>
                     </div>
 
-                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 flex-grow items-center">
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 flex-grow items-center relative z-10">
                         {/* Progress Bars (Wider - 66%) */}
-                        <div className="lg:col-span-8 space-y-6 w-full">
+                        <div className="lg:col-span-8 space-y-8 w-full">
                             {/* Nitrogen (N) */}
-                            <div>
-                                <div className="flex justify-between text-sm mb-2">
-                                    <span className="text-gray-600 font-medium">Nitrogen (N)</span>
-                                    <span className="font-bold text-blue-600">{latest?.nitrogen || 0} mg/kg</span>
+                            <div className="group">
+                                <div className="flex justify-between items-end mb-2">
+                                    <span className="text-gray-500 text-sm font-medium group-hover:text-blue-600 transition-colors">Nitrogen (N)</span>
+                                    <span className="font-bold text-gray-800 text-lg">{latest?.nitrogen || 0} <span className="text-xs text-gray-400 font-normal">mg/kg</span></span>
                                 </div>
-                                <div className="w-full bg-gray-100 rounded-full h-4 overflow-hidden">
-                                    <div className="bg-blue-500 h-4 rounded-full transition-all duration-1000 ease-out" style={{ width: `${Math.min(latest?.nitrogen || 0, 100)}%` }}></div>
+                                <div className="w-full bg-gray-100 rounded-full h-4 overflow-hidden border border-gray-200/50 shadow-inner">
+                                    <div className="bg-gradient-to-r from-blue-500 to-blue-600 h-4 rounded-full shadow-[0_2px_10px_rgba(59,130,246,0.4)] transition-all duration-1000 ease-out relative overflow-hidden" style={{ width: `${Math.min(latest?.nitrogen || 0, 100)}%` }}>
+                                        <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-white/20 to-transparent"></div>
+                                    </div>
                                 </div>
                             </div>
 
                             {/* Phosphorus (P) */}
-                            <div>
-                                <div className="flex justify-between text-sm mb-2">
-                                    <span className="text-gray-600 font-medium">Phosphorus (P)</span>
-                                    <span className="font-bold text-orange-600">{latest?.phosphorus || 0} mg/kg</span>
+                            <div className="group">
+                                <div className="flex justify-between items-end mb-2">
+                                    <span className="text-gray-500 text-sm font-medium group-hover:text-orange-600 transition-colors">Phosphorus (P)</span>
+                                    <span className="font-bold text-gray-800 text-lg">{latest?.phosphorus || 0} <span className="text-xs text-gray-400 font-normal">mg/kg</span></span>
                                 </div>
-                                <div className="w-full bg-gray-100 rounded-full h-4 overflow-hidden">
-                                    <div className="bg-orange-500 h-4 rounded-full transition-all duration-1000 ease-out" style={{ width: `${Math.min(latest?.phosphorus || 0, 100)}%` }}></div>
+                                <div className="w-full bg-gray-100 rounded-full h-4 overflow-hidden border border-gray-200/50 shadow-inner">
+                                    <div className="bg-gradient-to-r from-orange-500 to-orange-600 h-4 rounded-full shadow-[0_2px_10px_rgba(249,115,22,0.4)] transition-all duration-1000 ease-out relative overflow-hidden" style={{ width: `${Math.min(latest?.phosphorus || 0, 100)}%` }}>
+                                        <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-white/20 to-transparent"></div>
+                                    </div>
                                 </div>
                             </div>
 
                             {/* Potassium (K) */}
-                            <div>
-                                <div className="flex justify-between text-sm mb-2">
-                                    <span className="text-gray-600 font-medium">Potassium (K)</span>
-                                    <span className="font-bold text-purple-600">{latest?.potassium || 0} mg/kg</span>
+                            <div className="group">
+                                <div className="flex justify-between items-end mb-2">
+                                    <span className="text-gray-500 text-sm font-medium group-hover:text-purple-600 transition-colors">Potassium (K)</span>
+                                    <span className="font-bold text-gray-800 text-lg">{latest?.potassium || 0} <span className="text-xs text-gray-400 font-normal">mg/kg</span></span>
                                 </div>
-                                <div className="w-full bg-gray-100 rounded-full h-4 overflow-hidden">
-                                    <div className="bg-purple-500 h-4 rounded-full transition-all duration-1000 ease-out" style={{ width: `${Math.min(latest?.potassium || 0, 100)}%` }}></div>
+                                <div className="w-full bg-gray-100 rounded-full h-4 overflow-hidden border border-gray-200/50 shadow-inner">
+                                    <div className="bg-gradient-to-r from-purple-500 to-purple-600 h-4 rounded-full shadow-[0_2px_10px_rgba(168,85,247,0.4)] transition-all duration-1000 ease-out relative overflow-hidden" style={{ width: `${Math.min(latest?.potassium || 0, 100)}%` }}>
+                                        <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-white/20 to-transparent"></div>
+                                    </div>
                                 </div>
                             </div>
 
                             {/* pH Level */}
-                            <div>
-                                <div className="flex justify-between text-sm mb-2">
-                                    <span className="text-gray-600 font-medium">pH Level</span>
-                                    <span className="font-bold text-teal-600">{latest?.ph || 0}</span>
+                            <div className="group">
+                                <div className="flex justify-between items-end mb-2">
+                                    <span className="text-gray-500 text-sm font-medium group-hover:text-teal-600 transition-colors">pH Level</span>
+                                    <span className="font-bold text-gray-800 text-lg">{latest?.ph || 0}</span>
                                 </div>
-                                <div className="w-full bg-gray-100 rounded-full h-4 overflow-hidden relative">
-                                    <div className="absolute inset-0 bg-gradient-to-r from-red-400 via-green-400 to-blue-400 opacity-30"></div>
-                                    <div className="absolute top-0 bottom-0 w-1 bg-gray-800 border block shadow-lg transition-all duration-1000" style={{ left: `${((latest?.ph || 7) / 14) * 100}%` }}></div>
+                                <div className="w-full bg-gray-100 rounded-full h-4 overflow-hidden relative shadow-inner border border-gray-200/50">
+                                    <div className="absolute inset-0 bg-gradient-to-r from-red-400 via-emerald-400 to-blue-500 opacity-50"></div>
+                                    <div className="absolute top-0 bottom-0 w-2 bg-white border-2 border-gray-700 rounded-full shadow-[0_0_10px_rgba(0,0,0,0.2)] transition-all duration-1000 z-10 hover:scale-125" style={{ left: `${((latest?.ph || 7) / 14) * 100}%` }}></div>
                                 </div>
                             </div>
                         </div>
