@@ -217,6 +217,83 @@ const seedData = async () => {
                 maxPh: 7.0,
                 minMoisture: 50,
                 fertilizers: ["FYM", "Super Phosphate", "Potash"]
+            },
+            {
+                name: "Soybean",
+                type: "Primary",
+                soilTypes: ["Loam", "Black Soil"],
+                minTemp: 20,
+                maxTemp: 35,
+                minPh: 6.0,
+                maxPh: 7.0,
+                minMoisture: 45,
+                fertilizers: ["Nitrogen", "Phosphorus", "Potassium"]
+            },
+            {
+                name: "Potato",
+                type: "Primary",
+                soilTypes: ["Loose Loam", "Sandy Loam"],
+                minTemp: 15,
+                maxTemp: 25,
+                minPh: 4.8,
+                maxPh: 6.5,
+                minMoisture: 60,
+                fertilizers: ["Nitrogen", "Phosphorus", "Potassium"]
+            },
+            {
+                name: "Onion",
+                type: "Primary",
+                soilTypes: ["Sandy Loam", "Clay Loam", "Loam"],
+                minTemp: 13,
+                maxTemp: 24,
+                minPh: 6.0,
+                maxPh: 7.5,
+                minMoisture: 55,
+                fertilizers: ["Nitrogen", "Phosphorus", "Potassium", "Sulfur"]
+            },
+            {
+                name: "Barley",
+                type: "Secondary",
+                soilTypes: ["Sandy Loam", "Loam", "Saline Soil"],
+                minTemp: 12,
+                maxTemp: 25,
+                minPh: 6.0,
+                maxPh: 8.5,
+                minMoisture: 40,
+                fertilizers: ["Nitrogen", "Phosphorus", "Potassium"]
+            },
+            {
+                name: "Chickpea (Gram)",
+                type: "Primary",
+                soilTypes: ["Sandy Loam", "Clay Loam"],
+                minTemp: 15,
+                maxTemp: 25,
+                minPh: 6.0,
+                maxPh: 7.5,
+                minMoisture: 35,
+                fertilizers: ["Phosphorus", "Potassium"]
+            },
+            {
+                name: "Sunflower",
+                type: "Secondary",
+                soilTypes: ["Loam", "Black Soil", "Sandy Loam"],
+                minTemp: 20,
+                maxTemp: 28,
+                minPh: 6.0,
+                maxPh: 7.5,
+                minMoisture: 45,
+                fertilizers: ["Nitrogen", "Phosphorus", "Potassium"]
+            },
+            {
+                name: "Turmeric",
+                type: "Secondary",
+                soilTypes: ["Loamy Soil", "Alluvial Soil"],
+                minTemp: 20,
+                maxTemp: 30,
+                minPh: 4.5,
+                maxPh: 7.5,
+                minMoisture: 70,
+                fertilizers: ["FYM", "Nitrogen", "Phosphorus", "Potassium"]
             }
         ];
 

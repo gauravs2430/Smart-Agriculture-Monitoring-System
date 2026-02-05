@@ -10,7 +10,7 @@ The system features a **Regional Intelligence Engine** that pre-loads soil profi
   - Simply select your state (e.g., Punjab, Maharashtra, Kerala) to auto-calibrate the system with typical local soil and climate profiles.
   - Covers all Indian States and Union Territories.
 - **🧠 Advanced Decision Engine**: 
-  - Rule-based logic for **13+ major crops** including Cotton, Wheat, Rice, Sugarcane, Tea, Coffee, and more.
+  - Rule-based logic for **20+ major crops** including Cotton, Wheat, Rice, Sugarcane, Tea, Coffee, Soybean, and more.
   - Compares real-time sensor data against specific scientific thresholds (pH, Temp, Moisture, etc.).
 - **📊 Real-time Dashboard**: 
   - Visualizes live sensor data with dynamic charts and indicators.
@@ -60,11 +60,10 @@ node seedData.js
 ```
 *You should see a message confirming that State Profiles and Crop Rules have been seeded.*
 
-**Start the Server**:
-```bash
+
 npm run start
 ```
-*Server runs on http://localhost:5000*
+*Server runs on http://localhost:5001*
 
 ### 3. Frontend Setup
 Open a new terminal, navigate to the client directory, and start the UI.
