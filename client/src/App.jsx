@@ -2,13 +2,20 @@ import React, { useState } from 'react';
 import { LayoutDashboard, Leaf, Activity, Droplets, Thermometer, Wind } from 'lucide-react';
 import Dashboard from './components/Dashboard';
 import LandingPage from './components/LandingPage';
+import RegionSelection from './components/RegionSelection';
 
 function App() {
   const [showLanding, setShowLanding] = useState(true);
+  const [selectedRegion, setSelectedRegion] = useState(null); // New State
   const [activeTab, setActiveTab] = useState('dashboard');
 
   if (showLanding) {
     return <LandingPage onEnter={() => setShowLanding(false)} />;
+  }
+
+  // New Flow: Landing -> RegionSelection -> Dashboard
+  if (!selectedRegion) {
+    return <RegionSelection onSelect={(region) => setSelectedRegion(region)} />;
   }
 
   return (
@@ -40,12 +47,18 @@ function App() {
       {/* Main Content */}
       <main className="flex-1 overflow-y-auto">
         <header className="bg-white shadow-sm p-4 flex justify-between items-center">
-          <h2 className="text-xl font-semibold text-gray-800 capitalize">{activeTab}</h2>
+          <div className="flex items-center gap-4">
+            <h2 className="text-xl font-semibold text-gray-800 capitalize">{activeTab}</h2>
+            {/* Display Selected Region */}
+            <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold border border-green-200">
+              {selectedRegion.name}
+            </span>
+          </div>
           <div className="text-sm text-gray-500">Welcome, Farmer</div>
         </header>
 
         <div className="p-6">
-          {activeTab === 'dashboard' && <Dashboard />}
+          {activeTab === 'dashboard' && <Dashboard selectedRegion={selectedRegion} />}
           {activeTab === 'history' && <div className="text-center text-gray-500 mt-10">History Import Logic Coming Soon</div>}
         </div>
       </main>
