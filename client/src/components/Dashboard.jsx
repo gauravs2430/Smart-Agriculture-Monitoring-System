@@ -133,11 +133,11 @@ const Dashboard = ({ selectedRegion, onDataUpdate, onNavigate }) => {
                 />
             </div>
 
-            {/* Main Content Area - Fills Remaining Space */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 flex-grow">
+            {/* Main Content Area - Vertical Stack */}
+            <div className="flex flex-col gap-6 flex-grow">
 
-                {/* Left Column: Detailed Soil Analysis & Radar Chart (Span 8) */}
-                <div className="lg:col-span-8 bg-white p-8 rounded-2xl shadow-sm border border-gray-100 flex flex-col">
+                {/* Top Row: Detailed Soil Analysis & Radar Chart (Full Width) */}
+                <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 flex flex-col flex-grow">
                     <div className="flex justify-between items-center mb-6">
                         <h3 className="text-xl font-bold flex items-center gap-2 text-gray-800">
                             <FlaskConical className="text-green-600" /> Soil Nutrient Matrix
@@ -147,9 +147,9 @@ const Dashboard = ({ selectedRegion, onDataUpdate, onNavigate }) => {
                         </span>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 flex-grow">
-                        {/* Progress Bars */}
-                        <div className="space-y-6 self-center w-full">
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 flex-grow items-center">
+                        {/* Progress Bars (Wider - 66%) */}
+                        <div className="lg:col-span-8 space-y-6 w-full">
                             {/* Nitrogen (N) */}
                             <div>
                                 <div className="flex justify-between text-sm mb-2">
@@ -196,8 +196,8 @@ const Dashboard = ({ selectedRegion, onDataUpdate, onNavigate }) => {
                             </div>
                         </div>
 
-                        {/* Radar Chart */}
-                        <div className="flex flex-col items-center justify-center h-full min-h-[300px]">
+                        {/* Radar Chart (Narrower - 33%) */}
+                        <div className="lg:col-span-4 flex flex-col items-center justify-center h-full min-h-[300px]">
                             <div className="w-full h-full">
                                 <Radar
                                     data={{
@@ -243,35 +243,33 @@ const Dashboard = ({ selectedRegion, onDataUpdate, onNavigate }) => {
                     </div>
                 </div>
 
-                {/* Right Column: Smart Advisory Call to Action (Span 4) */}
-                <div className="lg:col-span-4 flex flex-col">
-                    <div className="bg-gradient-to-br from-green-900 to-green-700 rounded-2xl p-8 text-white shadow-xl flex flex-col justify-between h-full relative overflow-hidden group">
+                {/* Bottom Row: Smart Advisory Compact Banner */}
+                <div className="bg-gradient-to-r from-green-900 via-green-800 to-green-700 rounded-2xl p-6 text-white shadow-xl flex flex-col sm:flex-row items-center justify-between relative overflow-hidden group">
 
-                        {/* Decorative background element */}
-                        <div className="absolute -bottom-10 -right-10 w-64 h-64 bg-white opacity-5 rounded-full blur-3xl group-hover:opacity-10 transition-opacity duration-700"></div>
+                    {/* Decorative element */}
+                    <div className="absolute -left-10 -bottom-10 w-40 h-40 bg-white opacity-5 rounded-full blur-2xl group-hover:opacity-10 transition-opacity"></div>
 
+                    <div className="flex items-center gap-6 z-10">
+                        <div className="w-14 h-14 bg-white/10 backdrop-blur-md rounded-xl flex items-center justify-center shadow-inner shrink-0">
+                            <Sprout size={28} className="text-green-300" />
+                        </div>
                         <div>
-                            <div className="w-16 h-16 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center mb-6 shadow-inner">
-                                <Sprout size={32} className="text-green-300" />
-                            </div>
-
-                            <h3 className="text-3xl font-bold mb-4 leading-tight">
-                                Crop <br /> Intelligence
+                            <h3 className="text-2xl font-bold mb-1 leading-tight">
+                                Crop Intelligence
                             </h3>
-
-                            <p className="text-green-100/80 text-lg mb-8 leading-relaxed">
-                                Our AI has analyzed these {selectedRegion?.name ? `soil conditions in ${selectedRegion.name}` : 'sensor readings'} and generated a precision farming plan.
+                            <p className="text-green-100/90 text-sm max-w-lg">
+                                AI analysis of {selectedRegion?.name ? `soil in ${selectedRegion.name}` : 'sensor readings'} is ready. View your precision farming plan.
                             </p>
                         </div>
-
-                        <button
-                            onClick={() => onNavigate && onNavigate('recommendations')}
-                            className="w-full bg-white text-green-900 py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2 group-hover:bg-green-50"
-                        >
-                            View Recommendations
-                            <span className="inline-block transition-transform group-hover:translate-x-1">→</span>
-                        </button>
                     </div>
+
+                    <button
+                        onClick={() => onNavigate && onNavigate('recommendations')}
+                        className="mt-4 sm:mt-0 bg-white text-green-900 px-8 py-3 rounded-xl font-bold text-sm shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center gap-2 group-hover:bg-green-50 shrink-0 z-10"
+                    >
+                        View Recommendations
+                        <span className="inline-block transition-transform group-hover:translate-x-1">→</span>
+                    </button>
                 </div>
 
             </div>
