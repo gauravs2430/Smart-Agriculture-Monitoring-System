@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Sprout, Droplets, Thermometer, Wind, ArrowLeft, Loader2, AlertTriangle, CheckCircle } from 'lucide-react';
 import axios from 'axios';
+import { Leaf } from "lucide-react";
+
 
 const Recommendations = ({ readings, onBack }) => {
     const [recommendations, setRecommendations] = useState(null);
@@ -53,46 +55,27 @@ const Recommendations = ({ readings, onBack }) => {
     return (
         <div className="min-h-screen bg-gray-50 p-6 animate-in slide-in-from-right duration-500">
             {/* Header */}
-            <div className="flex items-center gap-4 mb-8">
-                <button onClick={onBack} className="p-2 hover:bg-gray-200 rounded-full transition-colors">
-                    <ArrowLeft size={24} className="text-gray-700" />
-                </button>
-                <div>
-                    <h1 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
-                        <Sprout className="text-green-600" /> Smart Crop Advisory
-                    </h1>
-                    <p className="text-gray-500 text-sm">AI-Powered Recommendations based on real-time soil analysis</p>
+            <div className="flex items-center justify-between mb-8">
+                <div className="flex items-center gap-4">
+                    <button onClick={onBack} className="p-2 hover:bg-gray-200 rounded-full transition-colors">
+                        <ArrowLeft size={24} className="text-gray-700" />
+                    </button>
+                    <div>
+                        <h1 className="text-3xl font-bold text-gray-800 flex items-center gap-2">
+                            <Sprout className="text-green-600" size={32} /> Smart Crop Advisory
+                        </h1>
+                        <p className="text-gray-500">AI-Powered Recommendations based on regional soil analysis</p>
+                    </div>
                 </div>
-            </div>
 
-            {/* Current Conditions Summary */}
-            <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 mb-8 grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="flex items-center gap-3">
-                    <Thermometer className="text-orange-500" />
-                    <div>
-                        <p className="text-xs text-gray-500">Temperature</p>
-                        <p className="font-bold">{readings.temperature}°C</p>
+                {/* Soil Type Badge */}
+                <div className="hidden md:flex items-center gap-3 bg-white px-6 py-3 rounded-xl border border-gray-200 shadow-sm">
+                    <div className="p-2 bg-amber-100 text-amber-700 rounded-lg">
+                        <Wind size={24} />
                     </div>
-                </div>
-                <div className="flex items-center gap-3">
-                    <Droplets className="text-blue-500" />
                     <div>
-                        <p className="text-xs text-gray-500">Moisture</p>
-                        <p className="font-bold">{readings.moisture}%</p>
-                    </div>
-                </div>
-                <div className="flex items-center gap-3">
-                    <Wind className="text-teal-500" />
-                    <div>
-                        <p className="text-xs text-gray-500">pH Level</p>
-                        <p className="font-bold">{readings.ph}</p>
-                    </div>
-                </div>
-                <div className="flex items-center gap-3">
-                    <Wind className="text-purple-500" />
-                    <div>
-                        <p className="text-xs text-gray-500">Soil Type</p>
-                        <p className="font-bold">{readings.soilType || 'Unknown'}</p>
+                        <p className="text-xs text-gray-500 uppercase font-bold tracking-wider">Soil Type Profile</p>
+                        <p className="text-lg font-bold text-gray-800">{readings.soilType || 'General Loam'}</p>
                     </div>
                 </div>
             </div>

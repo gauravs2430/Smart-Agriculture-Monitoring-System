@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Line, Radar } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, RadialLinearScale } from 'chart.js';
-import { Droplets, Thermometer, Wind, FlaskConical, Sprout, AlertCircle } from 'lucide-react';
+import { Droplets, Thermometer, Wind, FlaskConical, Sprout, AlertCircle, Activity, ShieldCheck, AlertTriangle, CheckCircle2, History } from 'lucide-react';
 import axios from 'axios';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, RadialLinearScale);
@@ -23,19 +23,6 @@ const StatCard = ({ title, value, unit, icon: Icon, color }) => (
 const Dashboard = ({ selectedRegion, onDataUpdate, onNavigate }) => {
     const [readings, setReadings] = useState([]);
     const [latest, setLatest] = useState(null);
-
-    // Simulation Form State
-    const [formData, setFormData] = useState({
-        moisture: 45,
-        temperature: 28,
-        humidity: 65,
-        ph: 6.5,
-        nitrogen: 40,
-        phosphorus: 30,
-        potassium: 40,
-        cropType: 'Tomato',
-        soilType: 'Loam'
-    });
 
     const fetchData = async () => {
         try {
@@ -62,18 +49,6 @@ const Dashboard = ({ selectedRegion, onDataUpdate, onNavigate }) => {
                     const res = await axios.get(`${API_URL}/data/state/${selectedRegion.name}`);
                     if (res.data.success) {
                         const profile = res.data.data;
-                        // Use State Defaults for Simulation Form
-                        setFormData({
-                            moisture: profile.avgMoisture,
-                            temperature: profile.avgTemp,
-                            humidity: profile.avgHumidity,
-                            ph: profile.ph,
-                            nitrogen: profile.nitrogen,
-                            phosphorus: profile.phosphorus,
-                            potassium: profile.potassium,
-                            cropType: 'Tomato',
-                            soilType: profile.soilType
-                        });
 
                         // Also set as "Latest" reading if no sensor data exists yet
                         if (!latest) {
@@ -105,17 +80,6 @@ const Dashboard = ({ selectedRegion, onDataUpdate, onNavigate }) => {
         return () => clearInterval(interval);
     }, [selectedRegion]);
 
-    const handleSimulate = async () => {
-        try {
-            await axios.post(`${API_URL}/readings`, formData);
-            fetchData();
-            alert("Reading Simulated Successfully!");
-        } catch (err) {
-            alert("Error simulating reading");
-            console.error(err);
-        }
-    };
-
     // Prepare Chart Data
     const chartData = {
         labels: readings.slice(0, 10).reverse().map(r => new Date(r.timestamp).toLocaleTimeString()),
@@ -136,9 +100,9 @@ const Dashboard = ({ selectedRegion, onDataUpdate, onNavigate }) => {
     };
 
     return (
-        <div className="space-y-6">
-            {/* Top Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="space-y-6 h-full flex flex-col">
+            {/* Top Stats - Distributed Evenly */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <StatCard
                     title="Soil Moisture"
                     value={latest?.moisture || '--'}
@@ -169,180 +133,149 @@ const Dashboard = ({ selectedRegion, onDataUpdate, onNavigate }) => {
                 />
             </div>
 
-            {/* Smart Advisory Section */}
-            <div className="bg-gradient-to-r from-green-800 to-green-600 rounded-xl p-6 text-white shadow-lg flex flex-col md:flex-row items-center justify-between gap-6">
-                <div>
-                    <h3 className="text-xl font-bold flex items-center gap-2 mb-2">
-                        <Sprout className="text-green-300" /> Smart Crop Advisory
-                    </h3>
-                    <p className="text-green-100 max-w-xl">
-                        Based on the current sensor readings from <span className="font-bold text-white">{selectedRegion?.name || 'your region'}</span>,
-                        our AI engine has generated optimized crop and fertilizer recommendations.
-                    </p>
-                </div>
-                <button
-                    onClick={() => onNavigate && onNavigate('recommendations')}
-                    className="bg-white text-green-800 px-6 py-3 rounded-lg font-bold shadow-md hover:scale-105 transition-transform whitespace-nowrap"
-                >
-                    View Recommendations
-                </button>
-            </div>
+            {/* Main Content Area - Fills Remaining Space */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 flex-grow">
 
-            {/* Nutrient Levels & Soil Simulation */}
-            <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                <div className="flex justify-between items-center mb-6">
-                    <h3 className="text-lg font-bold flex items-center gap-2">
-                        <FlaskConical className="text-green-600" /> Soil Nutrient Analysis
-                    </h3>
-                    <span className="text-xs px-3 py-1 bg-green-100 text-green-700 rounded-full font-bold">
-                        {latest ? 'Live Sensor Data' : 'Waiting for Updates...'}
-                    </span>
-                </div>
+                {/* Left Column: Detailed Soil Analysis & Radar Chart (Span 8) */}
+                <div className="lg:col-span-8 bg-white p-8 rounded-2xl shadow-sm border border-gray-100 flex flex-col">
+                    <div className="flex justify-between items-center mb-6">
+                        <h3 className="text-xl font-bold flex items-center gap-2 text-gray-800">
+                            <FlaskConical className="text-green-600" /> Soil Nutrient Matrix
+                        </h3>
+                        <span className="text-xs px-3 py-1 bg-green-100 text-green-700 rounded-full font-bold animate-pulse">
+                            {latest ? 'Region Data' : 'Connecting...'}
+                        </span>
+                    </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-
-                    {/* Left Column: Progress Bars */}
-                    <div className="space-y-6">
-                        {/* Nitrogen (N) */}
-                        <div>
-                            <div className="flex justify-between text-sm mb-2">
-                                <span className="text-gray-600 font-medium">Nitrogen (N)</span>
-                                <span className="font-bold text-blue-600">{latest?.nitrogen || 0} mg/kg</span>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 flex-grow">
+                        {/* Progress Bars */}
+                        <div className="space-y-6 self-center w-full">
+                            {/* Nitrogen (N) */}
+                            <div>
+                                <div className="flex justify-between text-sm mb-2">
+                                    <span className="text-gray-600 font-medium">Nitrogen (N)</span>
+                                    <span className="font-bold text-blue-600">{latest?.nitrogen || 0} mg/kg</span>
+                                </div>
+                                <div className="w-full bg-gray-100 rounded-full h-4 overflow-hidden">
+                                    <div className="bg-blue-500 h-4 rounded-full transition-all duration-1000 ease-out" style={{ width: `${Math.min(latest?.nitrogen || 0, 100)}%` }}></div>
+                                </div>
                             </div>
-                            <div className="w-full bg-gray-100 rounded-full h-3 overflow-hidden">
-                                <div
-                                    className="bg-blue-500 h-3 rounded-full transition-all duration-1000 ease-out"
-                                    style={{ width: `${Math.min(latest?.nitrogen || 0, 100)}%` }}
-                                ></div>
+
+                            {/* Phosphorus (P) */}
+                            <div>
+                                <div className="flex justify-between text-sm mb-2">
+                                    <span className="text-gray-600 font-medium">Phosphorus (P)</span>
+                                    <span className="font-bold text-orange-600">{latest?.phosphorus || 0} mg/kg</span>
+                                </div>
+                                <div className="w-full bg-gray-100 rounded-full h-4 overflow-hidden">
+                                    <div className="bg-orange-500 h-4 rounded-full transition-all duration-1000 ease-out" style={{ width: `${Math.min(latest?.phosphorus || 0, 100)}%` }}></div>
+                                </div>
                             </div>
-                            <p className="text-xs text-gray-400 mt-1 text-right">Ideal Range: 40-60 mg/kg</p>
+
+                            {/* Potassium (K) */}
+                            <div>
+                                <div className="flex justify-between text-sm mb-2">
+                                    <span className="text-gray-600 font-medium">Potassium (K)</span>
+                                    <span className="font-bold text-purple-600">{latest?.potassium || 0} mg/kg</span>
+                                </div>
+                                <div className="w-full bg-gray-100 rounded-full h-4 overflow-hidden">
+                                    <div className="bg-purple-500 h-4 rounded-full transition-all duration-1000 ease-out" style={{ width: `${Math.min(latest?.potassium || 0, 100)}%` }}></div>
+                                </div>
+                            </div>
+
+                            {/* pH Level */}
+                            <div>
+                                <div className="flex justify-between text-sm mb-2">
+                                    <span className="text-gray-600 font-medium">pH Level</span>
+                                    <span className="font-bold text-teal-600">{latest?.ph || 0}</span>
+                                </div>
+                                <div className="w-full bg-gray-100 rounded-full h-4 overflow-hidden relative">
+                                    <div className="absolute inset-0 bg-gradient-to-r from-red-400 via-green-400 to-blue-400 opacity-30"></div>
+                                    <div className="absolute top-0 bottom-0 w-1 bg-gray-800 border block shadow-lg transition-all duration-1000" style={{ left: `${((latest?.ph || 7) / 14) * 100}%` }}></div>
+                                </div>
+                            </div>
                         </div>
 
-                        {/* Phosphorus (P) */}
-                        <div>
-                            <div className="flex justify-between text-sm mb-2">
-                                <span className="text-gray-600 font-medium">Phosphorus (P)</span>
-                                <span className="font-bold text-orange-600">{latest?.phosphorus || 0} mg/kg</span>
-                            </div>
-                            <div className="w-full bg-gray-100 rounded-full h-3 overflow-hidden">
-                                <div
-                                    className="bg-orange-500 h-3 rounded-full transition-all duration-1000 ease-out"
-                                    style={{ width: `${Math.min(latest?.phosphorus || 0, 100)}%` }}
-                                ></div>
-                            </div>
-                            <p className="text-xs text-gray-400 mt-1 text-right">Ideal Range: 20-40 mg/kg</p>
-                        </div>
-
-                        {/* Potassium (K) */}
-                        <div>
-                            <div className="flex justify-between text-sm mb-2">
-                                <span className="text-gray-600 font-medium">Potassium (K)</span>
-                                <span className="font-bold text-purple-600">{latest?.potassium || 0} mg/kg</span>
-                            </div>
-                            <div className="w-full bg-gray-100 rounded-full h-3 overflow-hidden">
-                                <div
-                                    className="bg-purple-500 h-3 rounded-full transition-all duration-1000 ease-out"
-                                    style={{ width: `${Math.min(latest?.potassium || 0, 100)}%` }}
-                                ></div>
-                            </div>
-                            <p className="text-xs text-gray-400 mt-1 text-right">Ideal Range: 150-250 mg/kg</p>
-                        </div>
-
-                        {/* pH Level */}
-                        <div>
-                            <div className="flex justify-between text-sm mb-2">
-                                <span className="text-gray-600 font-medium">pH Level</span>
-                                <span className="font-bold text-teal-600">{latest?.ph || 0}</span>
-                            </div>
-                            <div className="w-full bg-gray-100 rounded-full h-3 overflow-hidden relative">
-                                {/* Gradient for pH scale */}
-                                <div className="absolute inset-0 bg-gradient-to-r from-red-400 via-green-400 to-blue-400 opacity-30"></div>
-                                <div
-                                    className="absolute top-0 bottom-0 w-1 bg-gray-800 border block shadow-lg"
-                                    style={{ left: `${((latest?.ph || 7) / 14) * 100}%` }}
-                                ></div>
-                            </div>
-                            <div className="flex justify-between text-xs text-gray-400 mt-1">
-                                <span>Acidic (0)</span>
-                                <span>Neutral (7)</span>
-                                <span>Alkaline (14)</span>
+                        {/* Radar Chart */}
+                        <div className="flex flex-col items-center justify-center h-full min-h-[300px]">
+                            <div className="w-full h-full">
+                                <Radar
+                                    data={{
+                                        labels: ['Nitrogen', 'Phosphorus', 'Potassium', 'Moisture', 'pH'],
+                                        datasets: [{
+                                            label: 'Nutrient Profile',
+                                            data: [
+                                                latest?.nitrogen || 0,
+                                                latest?.phosphorus || 0,
+                                                latest?.potassium || 0,
+                                                latest?.moisture || 0,
+                                                (latest?.ph || 0) * 10
+                                            ],
+                                            backgroundColor: 'rgba(34, 197, 94, 0.2)',
+                                            borderColor: 'rgba(34, 197, 94, 1)',
+                                            borderWidth: 2,
+                                            pointBackgroundColor: 'rgba(34, 197, 94, 1)',
+                                            pointBorderColor: '#fff',
+                                            pointHoverBackgroundColor: '#fff',
+                                            pointHoverBorderColor: 'rgba(34, 197, 94, 1)'
+                                        }]
+                                    }}
+                                    options={{
+                                        scales: {
+                                            r: {
+                                                angleLines: { color: 'rgba(0,0,0,0.05)' },
+                                                grid: { color: 'rgba(0,0,0,0.05)' },
+                                                suggestedMin: 0,
+                                                suggestedMax: 100,
+                                                ticks: { display: false, backdropColor: 'transparent' },
+                                                pointLabels: {
+                                                    font: { size: 12, weight: 'bold' },
+                                                    color: '#6b7280'
+                                                }
+                                            }
+                                        },
+                                        plugins: { legend: { display: false } },
+                                        maintainAspectRatio: false
+                                    }}
+                                />
                             </div>
                         </div>
                     </div>
+                </div>
 
-                    {/* Right Column: Radar Chart for Nutrient Balance */}
-                    <div className="flex flex-col items-center justify-center p-4 bg-gray-50 rounded-xl border border-gray-100">
-                        <h4 className="text-sm font-bold text-gray-500 mb-4 uppercase">Nutrient Balance</h4>
-                        <div className="w-full h-64">
-                            <Radar
-                                data={{
-                                    labels: ['Nitrogen', 'Phosphorus', 'Potassium', 'Moisture', 'pH (Scaled 0-10)'],
-                                    datasets: [{
-                                        label: 'Current Levels',
-                                        data: [
-                                            latest?.nitrogen || 0,
-                                            latest?.phosphorus || 0,
-                                            latest?.potassium || 0,
-                                            latest?.moisture || 0,
-                                            (latest?.ph || 0) * 10
-                                        ],
-                                        backgroundColor: 'rgba(34, 197, 94, 0.2)',
-                                        borderColor: 'rgba(34, 197, 94, 1)',
-                                        borderWidth: 2,
-                                        pointBackgroundColor: 'rgba(34, 197, 94, 1)',
-                                    }]
-                                }}
-                                options={{
-                                    scales: {
-                                        r: {
-                                            angleLines: { color: 'rgba(0,0,0,0.1)' },
-                                            grid: { color: 'rgba(0,0,0,0.1)' },
-                                            suggestedMin: 0,
-                                            suggestedMax: 100,
-                                            ticks: { display: false } // Hide numbers for cleaner look
-                                        }
-                                    },
-                                    plugins: {
-                                        legend: { display: false }
-                                    },
-                                    maintainAspectRatio: false
-                                }}
-                            />
+                {/* Right Column: Smart Advisory Call to Action (Span 4) */}
+                <div className="lg:col-span-4 flex flex-col">
+                    <div className="bg-gradient-to-br from-green-900 to-green-700 rounded-2xl p-8 text-white shadow-xl flex flex-col justify-between h-full relative overflow-hidden group">
+
+                        {/* Decorative background element */}
+                        <div className="absolute -bottom-10 -right-10 w-64 h-64 bg-white opacity-5 rounded-full blur-3xl group-hover:opacity-10 transition-opacity duration-700"></div>
+
+                        <div>
+                            <div className="w-16 h-16 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center mb-6 shadow-inner">
+                                <Sprout size={32} className="text-green-300" />
+                            </div>
+
+                            <h3 className="text-3xl font-bold mb-4 leading-tight">
+                                Crop <br /> Intelligence
+                            </h3>
+
+                            <p className="text-green-100/80 text-lg mb-8 leading-relaxed">
+                                Our AI has analyzed these {selectedRegion?.name ? `soil conditions in ${selectedRegion.name}` : 'sensor readings'} and generated a precision farming plan.
+                            </p>
                         </div>
-                        <p className="text-xs text-center text-gray-400 mt-4">
-                            Visual representation of soil health balance. An even shape indicates balanced nutrition.
-                        </p>
+
+                        <button
+                            onClick={() => onNavigate && onNavigate('recommendations')}
+                            className="w-full bg-white text-green-900 py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2 group-hover:bg-green-50"
+                        >
+                            View Recommendations
+                            <span className="inline-block transition-transform group-hover:translate-x-1">→</span>
+                        </button>
                     </div>
-
                 </div>
-            </div>
 
-            {/* Simulation Control (Collapsible/Optional) */}
-            <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                <h3 className="text-lg font-bold text-gray-700 mb-4">Manual Sensor Simulation</h3>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <input
-                        type="number" placeholder="Temperature" value={formData.temperature}
-                        onChange={e => setFormData({ ...formData, temperature: e.target.value })}
-                        className="border p-2 rounded"
-                    />
-                    <input
-                        type="number" placeholder="Moisture" value={formData.moisture}
-                        onChange={e => setFormData({ ...formData, moisture: e.target.value })}
-                        className="border p-2 rounded"
-                    />
-                    <input
-                        type="number" placeholder="pH" value={formData.ph}
-                        onChange={e => setFormData({ ...formData, ph: e.target.value })}
-                        className="border p-2 rounded"
-                    />
-                    <button onClick={handleSimulate} className="bg-gray-800 text-white p-2 rounded hover:bg-black">
-                        Inject Data
-                    </button>
-                </div>
             </div>
-
-        </div>
+        </div >
     );
 };
 
