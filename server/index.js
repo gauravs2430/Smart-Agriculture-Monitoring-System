@@ -31,6 +31,7 @@ mongoose.connect(MONGO_URI)
 // Routes
 app.use('/api', require('./routes/sensorRoutes'));
 app.use('/api/auth', require('./routes/authRoutes')); // Auth Routes
+app.use('/api/data', require('./routes/dataRoutes')); // Data & Recommendation Routes
 
 // Root Mock
 app.get('/', (req, res) => {

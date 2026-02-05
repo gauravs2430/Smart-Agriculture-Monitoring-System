@@ -55,10 +55,55 @@ const Dashboard = ({ selectedRegion, onDataUpdate, onNavigate }) => {
     };
 
     useEffect(() => {
+        // Fetch Real State Data if region is selected
+        const fetchStateProfile = async () => {
+            if (selectedRegion?.name) {
+                try {
+                    const res = await axios.get(`${API_URL}/data/state/${selectedRegion.name}`);
+                    if (res.data.success) {
+                        const profile = res.data.data;
+                        // Use State Defaults for Simulation Form
+                        setFormData({
+                            moisture: profile.avgMoisture,
+                            temperature: profile.avgTemp,
+                            humidity: profile.avgHumidity,
+                            ph: profile.ph,
+                            nitrogen: profile.nitrogen,
+                            phosphorus: profile.phosphorus,
+                            potassium: profile.potassium,
+                            cropType: 'Tomato',
+                            soilType: profile.soilType
+                        });
+
+                        // Also set as "Latest" reading if no sensor data exists yet
+                        if (!latest) {
+                            const initialData = {
+                                moisture: profile.avgMoisture,
+                                temperature: profile.avgTemp,
+                                humidity: profile.avgHumidity,
+                                ph: profile.ph,
+                                nitrogen: profile.nitrogen,
+                                phosphorus: profile.phosphorus,
+                                potassium: profile.potassium,
+                                soilType: profile.soilType,
+                                timestamp: new Date()
+                            };
+                            setLatest(initialData);
+                            // FIX: Propagate to App.jsx so Recommendations has data
+                            if (onDataUpdate) onDataUpdate(initialData);
+                        }
+                    }
+                } catch (err) {
+                    console.error("Failed to load state profile", err);
+                }
+            }
+        };
+
+        fetchStateProfile();
         fetchData();
         const interval = setInterval(fetchData, 5000);
         return () => clearInterval(interval);
-    }, []);
+    }, [selectedRegion]);
 
     const handleSimulate = async () => {
         try {
@@ -271,6 +316,32 @@ const Dashboard = ({ selectedRegion, onDataUpdate, onNavigate }) => {
 
                 </div>
             </div>
+
+            {/* Simulation Control (Collapsible/Optional) */}
+            <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                <h3 className="text-lg font-bold text-gray-700 mb-4">Manual Sensor Simulation</h3>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <input
+                        type="number" placeholder="Temperature" value={formData.temperature}
+                        onChange={e => setFormData({ ...formData, temperature: e.target.value })}
+                        className="border p-2 rounded"
+                    />
+                    <input
+                        type="number" placeholder="Moisture" value={formData.moisture}
+                        onChange={e => setFormData({ ...formData, moisture: e.target.value })}
+                        className="border p-2 rounded"
+                    />
+                    <input
+                        type="number" placeholder="pH" value={formData.ph}
+                        onChange={e => setFormData({ ...formData, ph: e.target.value })}
+                        className="border p-2 rounded"
+                    />
+                    <button onClick={handleSimulate} className="bg-gray-800 text-white p-2 rounded hover:bg-black">
+                        Inject Data
+                    </button>
+                </div>
+            </div>
+
         </div>
     );
 };

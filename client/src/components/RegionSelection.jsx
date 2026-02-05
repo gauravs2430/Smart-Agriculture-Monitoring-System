@@ -1,49 +1,30 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { MapPin, ArrowRight, Search, CheckCircle, Leaf, CloudRain } from 'lucide-react';
-
-const STATES = [
-    { name: "Andhra Pradesh", type: "Red/Black", fertility: "Medium" },
-    { name: "Arunachal Pradesh", type: "Mountain", fertility: "Medium" },
-    { name: "Assam", type: "Alluvial", fertility: "High" },
-    { name: "Bihar", type: "Alluvial", fertility: "High" },
-    { name: "Chhattisgarh", type: "Red/Yellow", fertility: "Medium" },
-    { name: "Goa", type: "Laterite", fertility: "Medium" },
-    { name: "Gujarat", type: "Black/Alluvial", fertility: "Medium-High" },
-    { name: "Haryana", type: "Alluvial", fertility: "High" },
-    { name: "Himachal Pradesh", type: "Mountain", fertility: "Medium" },
-    { name: "Jharkhand", type: "Red", fertility: "Low-Medium" },
-    { name: "Karnataka", type: "Red/Black", fertility: "Medium" },
-    { name: "Kerala", type: "Laterite", fertility: "Medium-High" },
-    { name: "Madhya Pradesh", type: "Black/Red", fertility: "Medium" },
-    { name: "Maharashtra", type: "Black Soil", fertility: "High" },
-    { name: "Manipur", type: "Laterite", fertility: "Medium" },
-    { name: "Meghalaya", type: "Laterite", fertility: "Medium-High" },
-    { name: "Mizoram", type: "Red/Mountain", fertility: "Medium" },
-    { name: "Nagaland", type: "Red/Mountain", fertility: "Medium" },
-    { name: "Odisha", type: "Red/Yellow", fertility: "Medium" },
-    { name: "Punjab", type: "Alluvial", fertility: "High" },
-    { name: "Rajasthan", type: "Sandy/Desert", fertility: "Low" },
-    { name: "Sikkim", type: "Mountain", fertility: "Medium" },
-    { name: "Tamil Nadu", type: "Red/Loam", fertility: "Medium" },
-    { name: "Telangana", type: "Red/Black", fertility: "Medium" },
-    { name: "Tripura", type: "Red/Laterite", fertility: "Medium" },
-    { name: "Uttar Pradesh", type: "Alluvial", fertility: "High" },
-    { name: "Uttarakhand", type: "Mountain", fertility: "Medium" },
-    { name: "West Bengal", type: "Alluvial", fertility: "High" },
-    { name: "Andaman and Nicobar", type: "Sandy/Loam", fertility: "Medium" },
-    { name: "Chandigarh", type: "Alluvial", fertility: "High" },
-    { name: "Delhi", type: "Alluvial", fertility: "Medium" },
-    { name: "Jammu and Kashmir", type: "Mountain", fertility: "Medium" },
-    { name: "Ladakh", type: "Mountain/Sandy", fertility: "Low" },
-    { name: "Lakshadweep", type: "Sandy", fertility: "Low-Medium" },
-    { name: "Puducherry", type: "Alluvial", fertility: "High" }
-];
+import axios from 'axios';
 
 const RegionSelection = ({ onSelect }) => {
     const [searchTerm, setSearchTerm] = useState("");
     const [selected, setSelected] = useState(null);
+    const [states, setStates] = useState([]);
+    const [loading, setLoading] = useState(true);
 
-    const filteredStates = STATES.filter(s =>
+    useEffect(() => {
+        const fetchStates = async () => {
+            try {
+                const res = await axios.get('/api/data/states');
+                if (res.data.success) {
+                    setStates(res.data.data);
+                }
+                setLoading(false);
+            } catch (err) {
+                console.error("Failed to load states", err);
+                setLoading(false);
+            }
+        };
+        fetchStates();
+    }, []);
+
+    const filteredStates = states.filter(s =>
         s.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
@@ -67,7 +48,7 @@ const RegionSelection = ({ onSelect }) => {
                     Select Your <span className="text-green-300">Region</span>
                 </h2>
                 <p className="text-green-100 text-lg font-light">
-                    Soil conditions vary by location. Select your state to calibrate the system.
+                    Soil conditions vary by location. Select your state to calibrate the system with real regional data.
                 </p>
             </div>
 
@@ -87,28 +68,37 @@ const RegionSelection = ({ onSelect }) => {
 
             {/* Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 w-full max-w-4xl mb-24 z-10 px-2 overflow-y-auto max-h-[60vh] scrollbar-hide py-2">
-                {filteredStates.map((state) => (
-                    <div
-                        key={state.name}
-                        onClick={() => setSelected(state)}
-                        className={`cursor-pointer p-5 rounded-2xl border transition-all duration-300 flex items-center justify-between group backdrop-blur-sm
-              ${selected === state
-                                ? 'bg-green-500/20 border-green-400 shadow-[0_0_20px_rgba(74,222,128,0.3)] transform scale-[1.02]'
-                                : 'bg-white/5 border-white/10 hover:border-white/30 hover:bg-white/10 hover:-translate-y-1 shadow-lg'}
-            `}
-                    >
-                        <div className="flex items-center gap-4">
-                            <div className={`p-3 rounded-full transition-colors ${selected === state ? 'bg-green-400 text-green-900' : 'bg-white/10 text-green-300 group-hover:bg-green-400 group-hover:text-green-900'}`}>
-                                <MapPin size={22} />
+                {loading ? (
+                    <div className="col-span-full text-center text-green-200 animate-pulse">Loading Regions from Database...</div>
+                ) : filteredStates.length > 0 ? (
+                    filteredStates.map((state) => (
+                        <div
+                            key={state._id || state.name}
+                            onClick={() => setSelected(state)}
+                            className={`cursor-pointer p-5 rounded-2xl border transition-all duration-300 flex items-center justify-between group backdrop-blur-sm
+                  ${selected === state
+                                    ? 'bg-green-500/20 border-green-400 shadow-[0_0_20px_rgba(74,222,128,0.3)] transform scale-[1.02]'
+                                    : 'bg-white/5 border-white/10 hover:border-white/30 hover:bg-white/10 hover:-translate-y-1 shadow-lg'}
+                `}
+                        >
+                            <div className="flex items-center gap-4">
+                                <div className={`p-3 rounded-full transition-colors ${selected === state ? 'bg-green-400 text-green-900' : 'bg-white/10 text-green-300 group-hover:bg-green-400 group-hover:text-green-900'}`}>
+                                    <MapPin size={22} />
+                                </div>
+                                <div>
+                                    <h3 className="font-bold text-lg">{state.name}</h3>
+                                    {/* Display Soil Type stored in DB */}
+                                    <p className="text-sm text-green-200/80 font-medium">
+                                        {state.soilType || 'Typical Soil'}
+                                    </p>
+                                </div>
                             </div>
-                            <div>
-                                <h3 className="font-bold text-lg">{state.name}</h3>
-                                <p className="text-sm text-green-200/80 font-medium">{state.type}</p>
-                            </div>
+                            {selected === state && <CheckCircle className="text-green-400 animate-bounce" size={24} />}
                         </div>
-                        {selected === state && <CheckCircle className="text-green-400 animate-bounce" size={24} />}
-                    </div>
-                ))}
+                    ))
+                ) : (
+                    <div className="col-span-full text-center text-gray-300">No region found</div>
+                )}
             </div>
 
             {/* CTA */}

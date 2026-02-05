@@ -1,162 +1,169 @@
-import React from 'react';
-import { ArrowLeft, Sprout, Droplets, Leaf, Info, Zap } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Sprout, Droplets, Thermometer, Wind, ArrowLeft, Loader2, AlertTriangle, CheckCircle } from 'lucide-react';
+import axios from 'axios';
 
 const Recommendations = ({ readings, onBack }) => {
-    // If no readings, use mock data or empty state
-    const data = readings || {
-        nitrogen: 0,
-        phosphorus: 0,
-        potassium: 0,
-        moisture: 0,
-        ph: 7,
-        temperature: 25
-    };
+    const [recommendations, setRecommendations] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
 
-    // --- Decision Logic ---
-    const getRecommendations = (d) => {
-        let primaryCrop = [];
-        let secondaryCrop = [];
-        let fertilizers = [];
-        let advice = [];
+    useEffect(() => {
+        const fetchRecommendations = async () => {
+            if (!readings) {
+                setLoading(false);
+                return;
+            }
 
-        // Nitrogen Logic
-        if (d.nitrogen < 40) {
-            fertilizers.push("Urea (High Nitrogen)");
-            advice.push("Soil is nitrogen deficient. Add Urea.");
-        } else if (d.nitrogen > 80) {
-            advice.push("Nitrogen levels are high. Avoid adding nitrogen-rich fertilizers.");
-        }
+            try {
+                // Send current sensor data to backend analysis engine
+                const res = await axios.post('/api/data/recommend', {
+                    temp: readings.temperature,
+                    ph: readings.ph,
+                    moisture: readings.moisture,
+                    soilType: readings.soilType || 'Loam' // Default if not simulating
+                });
 
-        // Phosphorus Logic
-        if (d.phosphorus < 20) {
-            fertilizers.push("DAP (Di-ammonium Phosphate)");
-            advice.push("Low Phosphorus detected. Use DAP.");
-        }
+                if (res.data.success) {
+                    setRecommendations(res.data.recommendations);
+                }
+                setLoading(false);
+            } catch (err) {
+                console.error("Error fetching recommendations", err);
+                setError("Could not analyze crop data at this time.");
+                setLoading(false);
+            }
+        };
 
-        // Potassium Logic
-        if (d.potassium < 150) {
-            fertilizers.push("MOP (Muriate of Potash)");
-            advice.push("Potassium is low. Apply Potash.");
-        }
+        fetchRecommendations();
+    }, [readings]);
 
-        // Moisture Logic
-        if (d.moisture > 60) {
-            primaryCrop.push("Rice", "Sugarcane", "Jute");
-            secondaryCrop.push("Lentils (Post-Harvest)");
-        } else if (d.moisture < 30) {
-            primaryCrop.push("Millets", "Sorghum", "Groundnut");
-            secondaryCrop.push("Mustard");
-            advice.push("Low moisture. Consider drip irrigation.");
-        } else {
-            primaryCrop.push("Wheat", "Maize", "Cotton");
-            secondaryCrop.push("Chickpea");
-        }
-
-        // pH Logic
-        if (d.ph < 5.5) {
-            advice.push("Soil is Acidic. Add Lime to neutralize.");
-        } else if (d.ph > 7.5) {
-            advice.push("Soil is Alkaline. Add Gypsum or Sulfur.");
-        }
-
-        return { primaryCrop, secondaryCrop, fertilizers, advice };
-    };
-
-    const recs = getRecommendations(data);
+    if (!readings) {
+        return (
+            <div className="p-10 text-center flex flex-col items-center justify-center h-full text-gray-500">
+                <AlertTriangle size={48} className="mb-4 text-yellow-500" />
+                <h2 className="text-xl font-bold text-gray-700">No Sensor Data Available</h2>
+                <p>Please simulate sensing data on the dashboard first.</p>
+                <button onClick={onBack} className="mt-6 px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+                    Go Back
+                </button>
+            </div>
+        );
+    }
 
     return (
-        <div className="min-h-screen bg-gray-50 p-6">
-            <header className="mb-8 flex items-center gap-4">
-                <button
-                    onClick={onBack}
-                    className="p-2 rounded-full bg-white shadow-sm border border-gray-200 hover:bg-gray-100 transition-colors"
-                >
-                    <ArrowLeft size={24} className="text-gray-600" />
+        <div className="min-h-screen bg-gray-50 p-6 animate-in slide-in-from-right duration-500">
+            {/* Header */}
+            <div className="flex items-center gap-4 mb-8">
+                <button onClick={onBack} className="p-2 hover:bg-gray-200 rounded-full transition-colors">
+                    <ArrowLeft size={24} className="text-gray-700" />
                 </button>
-                <h1 className="text-2xl font-bold text-gray-800">Crop Health & Advisory</h1>
-            </header>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-6xl mx-auto">
-
-                {/* Primary Recommendation Card */}
-                <div className="bg-white rounded-2xl shadow-sm border border-green-100 overflow-hidden">
-                    <div className="bg-green-600 p-6 text-white">
-                        <div className="flex items-center gap-3 mb-2">
-                            <Sprout size={28} />
-                            <h2 className="text-xl font-bold">Recommended Primary Crops</h2>
-                        </div>
-                        <p className="text-green-100 text-sm">Best suited for current soil conditions</p>
-                    </div>
-                    <div className="p-6">
-                        <div className="flex flex-wrap gap-3">
-                            {recs.primaryCrop.map((crop, i) => (
-                                <span key={i} className="px-4 py-2 bg-green-50 text-green-700 rounded-lg text-lg font-semibold border border-green-200">
-                                    {crop}
-                                </span>
-                            ))}
-                        </div>
-                    </div>
+                <div>
+                    <h1 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
+                        <Sprout className="text-green-600" /> Smart Crop Advisory
+                    </h1>
+                    <p className="text-gray-500 text-sm">AI-Powered Recommendations based on real-time soil analysis</p>
                 </div>
-
-                {/* Secondary Recommendation Card */}
-                <div className="bg-white rounded-2xl shadow-sm border border-blue-100 overflow-hidden">
-                    <div className="bg-blue-600 p-6 text-white">
-                        <div className="flex items-center gap-3 mb-2">
-                            <Leaf size={28} />
-                            <h2 className="text-xl font-bold">Secondary / Intercropping</h2>
-                        </div>
-                        <p className="text-blue-100 text-sm">For rotation or mixed farming</p>
-                    </div>
-                    <div className="p-6">
-                        <div className="flex flex-wrap gap-3">
-                            {recs.secondaryCrop.map((crop, i) => (
-                                <span key={i} className="px-4 py-2 bg-blue-50 text-blue-700 rounded-lg text-lg font-semibold border border-blue-200">
-                                    {crop}
-                                </span>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-
-                {/* Fertilizer Advisory */}
-                <div className="bg-white rounded-2xl shadow-sm border border-orange-100 overflow-hidden md:col-span-2">
-                    <div className="bg-orange-500 p-6 text-white">
-                        <div className="flex items-center gap-3 mb-2">
-                            <Zap size={28} />
-                            <h2 className="text-xl font-bold">Fertilizer & Soil Treatment</h2>
-                        </div>
-                        <p className="text-orange-100 text-sm">Required to optimize nutrient balance</p>
-                    </div>
-                    <div className="p-6">
-                        {recs.fertilizers.length > 0 ? (
-                            <div className="flex flex-wrap gap-3 mb-6">
-                                {recs.fertilizers.map((item, i) => (
-                                    <span key={i} className="px-4 py-2 bg-orange-50 text-orange-800 rounded-lg font-medium border border-orange-200">
-                                        {item}
-                                    </span>
-                                ))}
-                            </div>
-                        ) : (
-                            <p className="text-gray-500 italic mb-6">No specific fertilizers required at this time.</p>
-                        )}
-
-                        <div className="bg-gray-50 p-4 rounded-xl border border-gray-200">
-                            <h3 className="font-bold text-gray-700 flex items-center gap-2 mb-3">
-                                <Info size={18} className="text-blue-500" /> Detailed Advisory
-                            </h3>
-                            <ul className="space-y-2">
-                                {recs.advice.map((line, i) => (
-                                    <li key={i} className="text-gray-600 flex items-start gap-2 text-sm">
-                                        <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-gray-400"></span>
-                                        {line}
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-
             </div>
+
+            {/* Current Conditions Summary */}
+            <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 mb-8 grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="flex items-center gap-3">
+                    <Thermometer className="text-orange-500" />
+                    <div>
+                        <p className="text-xs text-gray-500">Temperature</p>
+                        <p className="font-bold">{readings.temperature}°C</p>
+                    </div>
+                </div>
+                <div className="flex items-center gap-3">
+                    <Droplets className="text-blue-500" />
+                    <div>
+                        <p className="text-xs text-gray-500">Moisture</p>
+                        <p className="font-bold">{readings.moisture}%</p>
+                    </div>
+                </div>
+                <div className="flex items-center gap-3">
+                    <Wind className="text-teal-500" />
+                    <div>
+                        <p className="text-xs text-gray-500">pH Level</p>
+                        <p className="font-bold">{readings.ph}</p>
+                    </div>
+                </div>
+                <div className="flex items-center gap-3">
+                    <Wind className="text-purple-500" />
+                    <div>
+                        <p className="text-xs text-gray-500">Soil Type</p>
+                        <p className="font-bold">{readings.soilType || 'Unknown'}</p>
+                    </div>
+                </div>
+            </div>
+
+            {/* Recommendations Content */}
+            {loading ? (
+                <div className="flex flex-col items-center justify-center py-20 text-green-600">
+                    <Loader2 size={48} className="animate-spin mb-4" />
+                    <p>Analyzing soil composition against agricultural database...</p>
+                </div>
+            ) : error ? (
+                <div className="text-center text-red-500 py-10">{error}</div>
+            ) : (
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+
+                    {/* Primary Crops */}
+                    <div className="bg-gradient-to-br from-green-50 to-white p-6 rounded-2xl border border-green-100 shadow-sm relative overflow-hidden">
+                        <div className="absolute top-0 right-0 p-4 opacity-10">
+                            <Sprout size={120} className="text-green-600" />
+                        </div>
+                        <h2 className="text-xl font-bold text-green-800 mb-6 flex items-center gap-2">
+                            <CheckCircle size={20} /> Top Recommended Crops
+                        </h2>
+
+                        <div className="space-y-4">
+                            {recommendations?.primary?.length > 0 ? (
+                                recommendations.primary.map((crop, idx) => (
+                                    <div key={idx} className="bg-white p-4 rounded-xl border border-green-100 shadow-sm hover:shadow-md transition-shadow">
+                                        <div className="flex justify-between items-start mb-2">
+                                            <h3 className="font-bold text-lg text-gray-800">{crop.name}</h3>
+                                            <span className="bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full font-bold">Best Match</span>
+                                        </div>
+                                        <div className="space-y-1">
+                                            <p className="text-sm text-gray-600"><span className="font-semibold">Fertilizers:</span> {crop.fertilizers.join(', ')}</p>
+                                            <p className="text-xs text-gray-500">Matches soil type and temperature profile exactly.</p>
+                                        </div>
+                                    </div>
+                                ))
+                            ) : (
+                                <p className="text-gray-500 italic">No primary crops found for these specific extreme conditions.</p>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Secondary Crops */}
+                    <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+                        <h2 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+                            Alternative Options
+                        </h2>
+                        <div className="space-y-4">
+                            {recommendations?.secondary?.length > 0 ? (
+                                recommendations.secondary.map((crop, idx) => (
+                                    <div key={idx} className="flex items-start gap-4 p-3 hover:bg-gray-50 rounded-lg transition-colors border-b border-gray-50 last:border-0">
+                                        <div className="p-2 bg-yellow-100 text-yellow-700 rounded-lg">
+                                            <Leaf size={20} />
+                                        </div>
+                                        <div>
+                                            <h3 className="font-bold text-gray-800">{crop.name}</h3>
+                                            <p className="text-sm text-gray-600">Requires: {crop.fertilizers[0]} + Irrigation</p>
+                                            {crop.note && <span className="text-xs text-red-500 font-bold">{crop.note}</span>}
+                                        </div>
+                                    </div>
+                                ))
+                            ) : (
+                                <p className="text-gray-500 italic">No alternative crops found.</p>
+                            )}
+                        </div>
+                    </div>
+
+                </div>
+            )}
         </div>
     );
 };
