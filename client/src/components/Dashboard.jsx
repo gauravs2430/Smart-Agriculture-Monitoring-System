@@ -276,7 +276,7 @@ const Dashboard = ({ selectedRegion, onDataUpdate, onNavigate }) => {
                                 Crop Intelligence
                             </h3>
                             <p className="text-green-100/90 text-sm max-w-lg">
-                                AI analysis of {selectedRegion?.name ? `soil in ${selectedRegion.name}` : 'sensor readings'} is ready. View your precision farming plan.
+                                Analysis of {selectedRegion?.name ? `soil in ${selectedRegion.name}` : 'sensor readings'} is ready. View your precision farming plan.
                             </p>
                         </div>
                     </div>
