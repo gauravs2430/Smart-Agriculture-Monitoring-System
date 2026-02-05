@@ -6,7 +6,7 @@ import axios from 'axios';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, RadialLinearScale);
 
-const API_URL = 'http://localhost:5000/api';
+const API_URL = '/api';
 
 const StatCard = ({ title, value, unit, icon: Icon, color }) => (
     <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex items-center gap-4">
