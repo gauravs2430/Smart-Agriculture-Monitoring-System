@@ -1,9 +1,15 @@
 import React, { useState } from 'react';
 import { LayoutDashboard, Leaf, Activity, Droplets, Thermometer, Wind } from 'lucide-react';
 import Dashboard from './components/Dashboard';
+import LandingPage from './components/LandingPage';
 
 function App() {
+  const [showLanding, setShowLanding] = useState(true);
   const [activeTab, setActiveTab] = useState('dashboard');
+
+  if (showLanding) {
+    return <LandingPage onEnter={() => setShowLanding(false)} />;
+  }
 
   return (
     <div className="flex h-screen bg-gray-100">
