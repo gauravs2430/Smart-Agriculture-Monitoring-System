@@ -64,7 +64,7 @@ const Recommendations = ({ readings, onBack }) => {
                         <h1 className="text-3xl font-bold text-gray-800 flex items-center gap-2">
                             <Sprout className="text-green-600" size={32} /> Smart Crop Advisory
                         </h1>
-                        <p className="text-gray-500">AI-Powered Recommendations based on regional soil analysis</p>
+                        <p className="text-gray-500">Recommendations based on regional soil analysis</p>
                     </div>
                 </div>
 
@@ -147,8 +147,142 @@ const Recommendations = ({ readings, onBack }) => {
 
                 </div>
             )}
-        </div>
+
+            {/* Soil Insights Section */}
+            {readings && (
+                <div className="mt-8 bg-white p-8 rounded-2xl border border-gray-100 shadow-sm">
+                    <h2 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+                        <Leaf className="text-amber-600" /> Soil Characteristics & Know-How
+                    </h2>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div>
+                            <h3 className="text-lg font-semibold text-gray-700 mb-3">About {readings.soilType || 'Loam'}</h3>
+                            <p className="text-gray-600 leading-relaxed">
+                                {SOIL_INSIGHTS[readings.soilType]?.description || SOIL_INSIGHTS['Loam'].description}
+                            </p>
+
+                            <div className="mt-6">
+                                <h4 className="font-bold text-gray-800 mb-2">Key Characteristics</h4>
+                                <ul className="space-y-2">
+                                    {(SOIL_INSIGHTS[readings.soilType]?.characteristics || SOIL_INSIGHTS['Loam'].characteristics).map((char, i) => (
+                                        <li key={i} className="flex items-start gap-2 text-sm text-gray-600">
+                                            <span className="mt-1 w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0"></span>
+                                            {char}
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div className="bg-amber-50 rounded-xl p-6">
+                            <h3 className="text-lg font-semibold text-amber-900 mb-4">Management & Care Tips</h3>
+                            <ul className="space-y-3">
+                                {(SOIL_INSIGHTS[readings.soilType]?.care || SOIL_INSIGHTS['Loam'].care).map((tip, i) => (
+                                    <li key={i} className="flex items-start gap-3 text-amber-800">
+                                        <CheckCircle size={18} className="text-amber-600 mt-0.5 shrink-0" />
+                                        <span className="text-sm">{tip}</span>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            )
+            }
+        </div >
     );
+};
+
+const SOIL_INSIGHTS = {
+    "Alluvial Soil": {
+        description: "Formed by river deposits, this is significantly fertile and occupies the largest land area in India. It is highly suitable for agriculture due to its rich mineral content.",
+        characteristics: [
+            "Rich in Potash and Lime.",
+            "loamy to sandy-loam texture.",
+            "Generally poor in Nitrogen and Phosphorus.",
+            "High water retention capacity in river valleys."
+        ],
+        care: [
+            "Regular nitrogen-based fertilization is recommended.",
+            "Suitable for a wide variety of crops including Rice, Wheat, and Sugarcane.",
+            "Maintain proper drainage to prevent waterlogging."
+        ]
+    },
+    "Black Soil": {
+        description: "Also known as Regur soil, it is volcanic in origin and ideal for cotton cultivation. It has unique self-ploughing characteristics.",
+        characteristics: [
+            "Clayey texture with high water retention.",
+            "Deep cracks develop during dry seasons (self-aeration).",
+            "Rich in Calcium Carbonate, Magnesium, and Potash.",
+            "Poor in Nitrogen and Phosphorus."
+        ],
+        care: [
+            "Avoid working on wet soil as it becomes sticky.",
+            "Apply phosphatic fertilizers for balance.",
+            "Ideal for rainfed crops due to moisture holding capacity.",
+            "Great for Cotton, Soybean, and Millets."
+        ]
+    },
+    "Red Soil": {
+        description: "Develops on crystalline igneous rocks in low rainfall areas. The reddish color comes from iron diffusion.",
+        characteristics: [
+            "Porous and friable structure.",
+            "Generally acidic with low moisture retention.",
+            "Rich in Iron and Potash.",
+            "Deficient in Nitrogen, Lime, and Humus."
+        ],
+        care: [
+            "Requires frequent irrigation as it does not hold water well.",
+            "Application of organic manure and lime is beneficial.",
+            "Good for Pulses, Groundnut, and Tobacco.",
+            "Correct acidity with liming if pH drops too low."
+        ]
+    },
+    "Laterite Soil": {
+        description: "Formed under conditions of high temperature and heavy rainfall with alternate wet and dry periods. Intense leaching results in low fertility.",
+        characteristics: [
+            "Acidic in nature.",
+            "Rich in Iron oxide and Aluminum.",
+            "Poor in Nitrogen, Potash, and Lime.",
+            "Hardens like brick when exposed to air."
+        ],
+        care: [
+            "Heavy application of manure and fertilizers is required.",
+            "Terracing is recommended for hilly areas.",
+            "Suitable for plantation crops like Tea, Coffee, and Cashew.",
+            "Lime application helps neutralize acidity."
+        ]
+    },
+    "Desert Soil": {
+        description: "Found in arid and semi-arid regions. It is sandy with low organic matter but high salt content.",
+        characteristics: [
+            "Sandy texture, 90-95% sand.",
+            "High soluble salt content.",
+            "Low moisture and humus.",
+            "Phosphate content is generally normal."
+        ],
+        care: [
+            "Drip irrigation is highly recommended to conserve water.",
+            "Gypsum can help reduce soil salinity.",
+            "Introduction of drought-resistant cover crops adds organic matter.",
+            "Suitable for Bajra, Pulses, and Guar with irrigation."
+        ]
+    },
+    "Loam": {
+        description: "A balanced mixture of sand, silt, and clay. Ideally considered the best soil for gardening and general agriculture.",
+        characteristics: [
+            "Balanced drainage and retention.",
+            "Good aeration for root growth.",
+            "Moderate nutrient levels.",
+            "Easy to work with."
+        ],
+        care: [
+            "Maintain organic matter with compost.",
+            "Suitable for almost all types of crops.",
+            "Regular soil testing ensures nutrient balance."
+        ]
+    }
 };
 
 export default Recommendations;

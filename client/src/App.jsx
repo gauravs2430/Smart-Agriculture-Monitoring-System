@@ -120,7 +120,7 @@ function App() {
           <h1 className="text-2xl font-bold flex items-center gap-2">
             <Sprout /> AgroSmart
           </h1>
-          <p className="text-sm text-green-200 mt-1">IoT Monitoring System</p>
+          <p className="text-sm text-green-200 mt-1">Monitoring System</p>
         </div>
 
         <nav className="flex-1 px-4 space-y-2 mt-4">
