@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Sprout, Droplets, Thermometer, Wind, ArrowLeft, Loader2, AlertTriangle, CheckCircle } from 'lucide-react';
+import { Sprout, Droplets, Thermometer, Wind, ArrowLeft, Loader2, AlertTriangle, CheckCircle, FileDown } from 'lucide-react';
 import axios from 'axios';
 import { Leaf } from "lucide-react";
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 
 const Recommendations = ({ readings, onBack }) => {
@@ -39,6 +41,79 @@ const Recommendations = ({ readings, onBack }) => {
         fetchRecommendations();
     }, [readings]);
 
+    const handleDownloadPDF = () => {
+        const doc = new jsPDF();
+
+        // Title
+        doc.setFontSize(20);
+        doc.setTextColor(22, 101, 52); // green-800
+        doc.text("AgroSmart Soil Health Report", 14, 22);
+
+        // Meta Data
+        doc.setFontSize(10);
+        doc.setTextColor(100);
+        doc.text(`Generated on: ${new Date().toLocaleString()}`, 14, 30);
+        doc.text(`Soil Type: ${readings.soilType || 'Loam'}`, 14, 35);
+
+        // Section 1: Soil Readings
+        doc.setFontSize(14);
+        doc.setTextColor(0);
+        doc.text("Current Soil Status", 14, 45);
+
+        const soilData = [
+            ['Parameter', 'Value', 'Status'],
+            ['Temperature', `${readings.temperature}°C`, 'Recorded'],
+            ['Moisture', `${readings.moisture}%`, readings.moisture < 30 ? 'Low' : 'Adequate'],
+            ['pH Level', readings.ph, readings.ph < 6 ? 'Acidic' : readings.ph > 7.5 ? 'Alkaline' : 'Neutral'],
+            ['Nitrogen', `${readings.nitrogen} mg/kg`, '-'],
+            ['Phosphorus', `${readings.phosphorus} mg/kg`, '-'],
+            ['Potassium', `${readings.potassium} mg/kg`, '-'],
+        ];
+
+        autoTable(doc, {
+            startY: 50,
+            head: [soilData[0]],
+            body: soilData.slice(1),
+            theme: 'grid',
+            headStyles: { fillColor: [22, 163, 74] }, // green-600
+        });
+
+        // Section 2: Recommendations
+        const finalY = doc.lastAutoTable.finalY || 100;
+        doc.setFontSize(14);
+        doc.text("Crop Recommendations", 14, finalY + 15);
+
+        const cropRows = [];
+        if (recommendations?.primary?.length) {
+            recommendations.primary.forEach(crop => {
+                cropRows.push([crop.name, 'Primary', crop.fertilizers.join(', ')]);
+            });
+        }
+        if (recommendations?.secondary?.length) {
+            recommendations.secondary.forEach(crop => {
+                cropRows.push([crop.name, 'Secondary', `Requires: ${crop.fertilizers[0]} + Irrigation`]);
+            });
+        }
+
+        autoTable(doc, {
+            startY: finalY + 20,
+            head: [['Crop Name', 'Type', 'Notes / Fertilizers']],
+            body: cropRows,
+            theme: 'striped',
+            headStyles: { fillColor: [22, 163, 74] },
+        });
+
+        // Footer
+        const pageCount = doc.internal.getNumberOfPages();
+        for (let i = 1; i <= pageCount; i++) {
+            doc.setPage(i);
+            doc.setFontSize(10);
+            doc.text('AgroSmart - Intelligent Agriculture Monitoring System', 14, doc.internal.pageSize.height - 10);
+        }
+
+        doc.save(`AgroSmart_Report_${new Date().toISOString().split('T')[0]}.pdf`);
+    };
+
     if (!readings) {
         return (
             <div className="p-10 text-center flex flex-col items-center justify-center h-full text-gray-500">
@@ -68,14 +143,22 @@ const Recommendations = ({ readings, onBack }) => {
                     </div>
                 </div>
 
-                {/* Soil Type Badge */}
-                <div className="hidden md:flex items-center gap-3 bg-white px-6 py-3 rounded-xl border border-gray-200 shadow-sm">
-                    <div className="p-2 bg-amber-100 text-amber-700 rounded-lg">
-                        <Wind size={24} />
-                    </div>
-                    <div>
-                        <p className="text-xs text-gray-500 uppercase font-bold tracking-wider">Soil Type Profile</p>
-                        <p className="text-lg font-bold text-gray-800">{readings.soilType || 'General Loam'}</p>
+                <div className="flex items-center gap-3">
+                    <button
+                        onClick={handleDownloadPDF}
+                        className="hidden md:flex items-center gap-2 bg-white text-green-700 border border-green-200 px-4 py-2 rounded-lg hover:bg-green-50 shadow-sm transition-all font-semibold"
+                    >
+                        <FileDown size={20} /> Download Report
+                    </button>
+                    {/* Soil Type Badge */}
+                    <div className="hidden md:flex items-center gap-3 bg-white px-6 py-3 rounded-xl border border-gray-200 shadow-sm">
+                        <div className="p-2 bg-amber-100 text-amber-700 rounded-lg">
+                            <Wind size={24} />
+                        </div>
+                        <div>
+                            <p className="text-xs text-gray-500 uppercase font-bold tracking-wider">Soil Type Profile</p>
+                            <p className="text-lg font-bold text-gray-800">{readings.soilType || 'General Loam'}</p>
+                        </div>
                     </div>
                 </div>
             </div>

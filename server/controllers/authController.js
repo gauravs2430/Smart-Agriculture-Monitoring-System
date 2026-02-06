@@ -2,6 +2,43 @@ const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
+// Helper to set cookie
+const sendToken = (user, statusCode, res) => {
+    const payload = {
+        user: {
+            id: user.id
+        }
+    };
+
+    jwt.sign(
+        payload,
+        process.env.JWT_SECRET || 'secret_agro_token',
+        { expiresIn: 360000 }, // 100 hours approx
+        (err, token) => {
+            if (err) throw err;
+
+            // Cookie options
+            const options = {
+                expires: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000), // 90 days
+                httpOnly: true,
+                // secure: true, // Only for HTTPS (enable in production)
+                // sameSite: 'None' // If cross-site
+            };
+
+            res.status(statusCode)
+                .cookie('token', token, options)
+                .json({
+                    success: true,
+                    user: {
+                        id: user.id,
+                        name: user.name,
+                        email: user.email
+                    }
+                });
+        }
+    );
+};
+
 // Register User
 exports.register = async (req, res) => {
     try {
@@ -26,30 +63,7 @@ exports.register = async (req, res) => {
 
         await user.save();
 
-        // Create Token
-        const payload = {
-            user: {
-                id: user.id
-            }
-        };
-
-        jwt.sign(
-            payload,
-            process.env.JWT_SECRET || 'secret_agro_token',
-            { expiresIn: 360000 },
-            (err, token) => {
-                if (err) throw err;
-                res.status(201).json({
-                    success: true,
-                    token,
-                    user: {
-                        id: user.id,
-                        name: user.name,
-                        email: user.email
-                    }
-                });
-            }
-        );
+        sendToken(user, 201, res);
 
     } catch (err) {
         console.error(err.message);
@@ -74,33 +88,33 @@ exports.login = async (req, res) => {
             return res.status(400).json({ success: false, msg: 'Invalid Credentials' });
         }
 
-        // Return Token
-        const payload = {
-            user: {
-                id: user.id
-            }
-        };
-
-        jwt.sign(
-            payload,
-            process.env.JWT_SECRET || 'secret_agro_token',
-            { expiresIn: 360000 },
-            (err, token) => {
-                if (err) throw err;
-                res.json({
-                    success: true,
-                    token,
-                    user: {
-                        id: user.id,
-                        name: user.name,
-                        email: user.email
-                    }
-                });
-            }
-        );
+        sendToken(user, 200, res);
 
     } catch (err) {
         console.error(err.message);
         res.status(500).json({ success: false, msg: 'Server Error: ' + err.message });
+    }
+};
+
+// Logout User
+exports.logout = (req, res) => {
+    res.cookie('token', 'none', {
+        expires: new Date(Date.now() + 10 * 1000),
+        httpOnly: true
+    });
+    res.status(200).json({ success: true, data: {} });
+};
+
+// Get Current User
+exports.getMe = async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id).select('-password');
+        res.status(200).json({
+            success: true,
+            data: user
+        });
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).json({ success: false, msg: 'Server Error' });
     }
 };

@@ -143,7 +143,7 @@ const Dashboard = ({ selectedRegion, onDataUpdate, onNavigate }) => {
 
                 {/* Top Row: Detailed Soil Analysis & Radar Chart (Full Width) */}
                 {/* Top Row: Detailed Soil Analysis & Radar Chart (Full Width) */}
-                <div className="bg-white/90 backdrop-blur-xl p-8 rounded-[2.5rem] shadow-[0_8px_30px_-8px_rgba(0,0,0,0.04)] border border-white/50 flex flex-col flex-grow relative overflow-hidden ring-1 ring-black/5">
+                <div className="bg-green-50/90 backdrop-blur-xl p-8 rounded-[2.5rem] shadow-[0_8px_30px_-8px_rgba(0,0,0,0.04)] border border-white/50 flex flex-col flex-grow relative overflow-hidden ring-1 ring-black/5">
                     <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-emerald-50/80 to-teal-50/80 rounded-full blur-3xl -mr-32 -mt-32 pointer-events-none opacity-70"></div>
 
                     <div className="flex justify-between items-center mb-8 relative z-10">

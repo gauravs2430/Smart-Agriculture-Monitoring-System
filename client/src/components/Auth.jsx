@@ -39,8 +39,8 @@ const Auth = ({ onLogin }) => {
                     // alert("Registration Successful! Please login.");
                     setFormData({ name: '', email: '', password: '' });
                 } else {
-                    // Login Successful -> Store token and User Data
-                    localStorage.setItem('token', res.data.token);
+                    // Login Successful
+                    // Token is stored in HttpOnly Cookie by server
                     // Pass user data to parent (App.jsx)
                     onLogin(res.data.user);
                 }

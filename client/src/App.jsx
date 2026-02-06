@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { LayoutDashboard, Leaf, Activity, Sprout, ClipboardList, MapPin, User, LogOut } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
+import axios from 'axios';
 
 import Dashboard from './components/Dashboard';
 import LandingPage from './components/LandingPage';
@@ -9,6 +10,9 @@ import Recommendations from './components/Recommendations';
 import Auth from './components/Auth';
 
 function App() {
+  // Set global credentials
+  axios.defaults.withCredentials = true;
+
   const [showLanding, setShowLanding] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState(null); // User state
@@ -18,25 +22,33 @@ function App() {
   const [latestReadings, setLatestReadings] = useState(null);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    const savedUser = localStorage.getItem('user'); // Retrieve saved user name if available
-    if (token) {
-      setIsAuthenticated(true);
-      if (savedUser) {
-        setUser(JSON.parse(savedUser));
-      }
-    }
+    checkAuth();
   }, []);
+
+  const checkAuth = async () => {
+    try {
+      const res = await axios.get('/api/auth/me');
+      if (res.data.success) {
+        setIsAuthenticated(true);
+        setUser(res.data.data);
+      }
+    } catch (err) {
+      setIsAuthenticated(false);
+      setUser(null);
+    }
+  };
 
   const handleLogin = (userData) => {
     setIsAuthenticated(true);
     setUser(userData);
-    localStorage.setItem('user', JSON.stringify(userData)); // Persist user data
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+  const handleLogout = async () => {
+    try {
+      await axios.get('/api/auth/logout');
+    } catch (err) {
+      console.error("Logout failed", err);
+    }
     setIsAuthenticated(false);
     setUser(null);
     setSelectedRegion(null);
