@@ -48,7 +48,7 @@ npm install
 **Configuration**:
 Create a `.env` file in the `server` directory with:
 ```env
-PORT=5000
+PORT=5001
 MONGO_URI=mongodb://localhost:27017/crop_monitoring
 ```
 *(Replace `MONGO_URI` if using MongoDB Atlas)*
