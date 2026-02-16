@@ -40,3 +40,10 @@
 .read-the-docs {
   color: #888;
 }
+
+.animated-element {
+  will-change: transform, opacity;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
